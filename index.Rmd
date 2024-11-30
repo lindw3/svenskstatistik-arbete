@@ -1,0 +1,77 @@
+---
+title: "Svensk statistik - arbete"
+author: "av William Lind"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    navbar:
+      - { title: "Till startsidan", href: "https://lindw3.github.io/svenskstatistik/", align: right }
+    vertical_layout: fill
+    theme: journal
+    css: styles.css
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(stringr)
+library(scales)
+library(dplyr)
+library(tidyr)
+library(DT)
+library(png)
+library(data.table)
+library(magrittr)
+library(gridExtra)
+library(openxlsx)
+library(forcats)
+library(patchwork)
+library(ggthemes)
+library(plotly)
+library(ggridges)
+library(forecast)
+library(GGally)
+library(cluster)
+library(sf)
+library(ggrepel)
+library(ggtext)
+library(readxl)
+library(waffle)
+```
+
+# Översikt {data-orientation="rows"}
+##
+### Om initiativet
+*Svensk statistik* är ett initiativ taget av William Lind med det huvudsakliga syftet att visualisera utvecklingen i Sverige utifrån ett antal parametrar. Genom SCB är Sverige ett land som ligger i framkant i att lagra registerdata och föra annan statistik på befolkningsnivå, men denna statistik är inte alltid så enkel att ta till sig. Detta är ett försök att förenkla möjligheten att ta till sig av denna data.
+<br><br>
+
+##
+### Om rapporten 
+I denna rapport bemöts området **Arbete** utifrån dessa områden:
+<br><br>
+-  <br>
+-  <br>
+- 
+<br> <br>
+Använd navigationspanelen högst upp för att se svaren utifrån olika områden. *Får figurerna inte plats på sidan? Testa att zooma ut genom att hålla in `Ctrl` + `-`.*
+
+
+##
+### Andra områden
+<style>
+  .big-button {
+    font-size: 30px;
+    padding: 20px 40px;
+  }
+</style>
+
+
+<div style="display: flex; gap: 15px; justify-content: left;">
+  <a href="https://lindw3.github.io/svenskstatistik-demokrati/" class="btn btn-primary big-button" role="button">DEMOKRATI</a>
+  <a href="https://lindw3.github.io/svenskstatistik-demokrati/" class="btn btn-primary big-button" role="button">UTBILDNING</a>
+</div>
+
+
