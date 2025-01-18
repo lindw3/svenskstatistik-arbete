@@ -42,6 +42,55 @@ library(readxl)
 library(waffle)
 ```
 
+```{r}
+### Dataprep
+
+   # Sysselsättning
+sysselsättning <- read_excel("~/GitHub/svenskstatistik-arbete/data/sysselsättning.xlsx")
+
+sysselsättning <- sysselsättning %>% 
+  pivot_longer(!c(Kön, Ålder, Mätvariabel), names_to = "År" , values_to = "Antal") %>% 
+  mutate(Antal = Antal * 1000)
+
+   # Arbetstid 
+arbetstid <- read_excel("~/GitHub/svenskstatistik-arbete/data/arbetstid_genomsnitt.xlsx")
+
+arbetstid <- arbetstid %>% 
+  pivot_longer(!c(Kön, Mätvariabel), names_to = "År" , values_to = "Genomsnitt")
+
+  # Arbetsfrånvaro
+frånvarotimmar_arbete <- read_excel("~/GitHub/svenskstatistik-arbete/data/frånvarotimmar_arbete.xlsx")
+
+frånvarotimmar_arbete <- frånvarotimmar_arbete %>% 
+  pivot_longer(!c(Kön, Mätvariabel), names_to = "År" , values_to = "Timmar") %>% 
+  mutate(Timmar = Timmar * 1000)
+
+
+# Tema
+ss_theme <- theme(plot.background = element_rect(fill = "#EB6864") ,
+                  plot.caption = element_text(hjust = 0) ,
+                  panel.background = element_rect(fill = "white"),
+                  axis.line.x = element_line(color = "black" , linewidth = 0.75) ,
+                  axis.line.y = element_line(color = "black" , linewidth = 0.75) ,
+                  plot.title = element_text(color = "white" , size = 16 , family = "sans"),
+                  panel.grid.major.y  = element_line(color = "#B51E17" , linetype = "dotted"),
+                  panel.grid.major.x = element_line(NULL),
+                  panel.grid.minor = element_line(NULL),
+                  legend.background = element_rect(fill = "white"),
+                  legend.key = element_rect(fill = "white"),
+                  legend.text = element_text(color = "black" , family = "sans") ,
+                  legend.title = element_text(color = "black" , family = "sans") , 
+                  text = element_text(size=12, face="plain", color = "white" , family = "sans"),
+                  axis.title = element_text(color = "white" , family = "sans" , size = 18),
+                  axis.text = element_text(color = "white" , family = "sans") ,
+                  axis.text.x = element_text(size = 12))
+
+```
+
+
+
+
+
 # Översikt {data-orientation="rows"}
 ## {data-height=200}
 ### Om initiativet
@@ -52,9 +101,9 @@ library(waffle)
 ### Om rapporten 
 I denna rapport bemöts området **Arbete** utifrån dessa områden:
 <br><br>
--  TEXT <br>
-- TEXT <br>
-- TEXT
+- **Arbete**: Sysselsättning, arbetstid och arbetsfrånvaro. <br>
+- **Anställning**: Antal anställda utifrån sektor och näringsgren. <br>
+- **Löner**: Lönespridning och jämförelser utifrån ålderskategori och kön.
 <br> <br>
 Använd navigationspanelen högst upp för att se svaren utifrån olika områden. *Får figurerna inte plats på sidan? Testa att zooma ut genom att hålla in `Ctrl` + `-`.*
 
@@ -72,5 +121,165 @@ Använd navigationspanelen högst upp för att se svaren utifrån olika områden
     <img src="C:/Users/WILIDF17/OneDrive - Sveriges Riksidrottsförbund/Dokument/GitHub/svenskstatistik/bilder/utbildning.png" width="30%">
   </a>
 </div>
+
+# Sysselsättning {data-orientation="columns" data-navmenu="Arbete"}
+## 
+### Antal sysselsatta utifrån kön
+
+```{r}
+sysselsättning %>% 
+  filter(År == "2023" ,
+         Ålder == "Totalt" ,
+         Kön != "Båda" ,
+         ) %>% 
+  ggplot(aes(x = Mätvariabel , y = Antal , fill = Kön ,
+             text = paste(Mätvariabel, "\nKön: ", Kön, "\nAntal: ", comma(Antal)))) +
+  geom_col(position = "dodge") +
+  xlab("Antal") +
+  ss_theme +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 4), labels = scales::comma) -> p_sysselsättning_kön
+
+ggplotly(p_sysselsättning_kön, tooltip = "text") %>%
+  config(displayModeBar = F)
+```
+
+##
+### Antal sysselsatta i arbete utifrån ålderskategori och kön
+```{r}
+sysselsättning %>% 
+  filter(År == "2023" ,
+         Kön != "Båda" ,
+         Ålder %in% c("15-24" , "25-34" , "35-44" , "45-54" , "55-64") ,
+         Mätvariabel == "Sysselsatta i arbete") %>% 
+  ggplot(aes(x = Ålder , y = Antal , fill = Kön ,
+             text = paste(Ålder, "\nKön: ", Kön, "\nAntal: ", comma(Antal)))) +
+  geom_col(position = "dodge") +
+  xlab("Ålderskategori") +
+  ss_theme +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5), labels = scales::comma) -> p_arbete_kön_ålder
+
+ggplotly(p_arbete_kön_ålder, tooltip = "text") %>%
+  config(displayModeBar = F)
+```
+
+# Arbetstid {data-orientation="columns" data-navmenu="Arbete"}
+##
+### Arbetstid/vecka utifrån kön och år
+```{r}
+arbetstid %>% 
+  filter(Mätvariabel == "Totalt" ,
+         Kön != "Totalt") %>% 
+  ggplot(aes(x = År, y = Genomsnitt, group = Kön, color = Kön,
+             text = paste("År: ", År, "\nKön: " , Kön , "\nGenomsnitt: ", Genomsnitt))) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(breaks = 30 , limits = c(15 , 45)) +
+  scale_x_discrete(breaks = c("2005" , "2023")) +
+  ss_theme +
+  scale_color_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) -> p_arbetstid_kön
+
+ggplotly(p_arbetstid_kön, tooltip = "text") %>%
+  config(displayModeBar = F)
+```
+
+##
+### Arbetstid/vecka utifrån anställning och år
+```{r}
+arbetstid %>% 
+  filter(Mätvariabel != "Totalt" ,
+         Kön == "Totalt") %>% 
+  ggplot(aes(x = År, y = Genomsnitt, group = Mätvariabel, color = Mätvariabel,
+             text = paste("År: ", År, "\nAnställning: " , Mätvariabel , "\nGenomsnitt: ", Genomsnitt))) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(breaks = 30 , limits = c(15 , 45)) +
+  scale_x_discrete(breaks = c("2005" , "2023")) +
+  ss_theme +
+  scale_color_manual(values = c("Fast anställda" = "#ffb1b1",
+                               "Tidsbegränsat" = "#64b6ee")) -> p_arbetstid_anställning
+
+ggplotly(p_arbetstid_anställning, tooltip = "text") %>%
+  config(displayModeBar = F)
+
+```
+
+
+# Arbetsfrånvaro {data-orientation="columns" data-navmenu="Arbete"}
+##
+### Frånvarotimmar från arbete utifrån kön och år
+```{r}
+frånvarotimmar_arbete %>% 
+  filter(Mätvariabel == "Totalt" ,
+         Kön != "Totalt") %>% 
+  ggplot(aes(x = År, y = Timmar, group = Kön, color = Kön,
+             text = paste("År: ", År, "\nKön: " , Kön , "\nTimmar: ", comma(Timmar)))) +
+  geom_line(linewidth = 1) +
+  scale_x_discrete(breaks = c("2005" , "2023")) +
+  scale_y_continuous(breaks = c(20000000), limits = c(10000000 , 30000000) , labels = scales::comma) +
+  ss_theme +
+  scale_color_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) -> p_arbetsfrånvaro_kön
+
+ggplotly(p_arbetsfrånvaro_kön, tooltip = "text") %>%
+  config(displayModeBar = F)
+
+```
+
+##
+### Frånvarotimmar från arbete utifrån kön och anledning
+```{r}
+frånvarotimmar_arbete %>% 
+  filter(År == "2023" ,
+         Kön != "Totalt" ,
+         Mätvariabel != "Totalt") %>% 
+  ggplot(aes(x = Mätvariabel , y = Timmar , fill = Kön ,
+             text = paste("Anledning:" , Mätvariabel, "\nKön: ", Kön, "\nTimmar: ", comma(Timmar)))) +
+  geom_col(position = "dodge") +
+  xlab("Anledning") +
+  ss_theme +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5), labels = scales::comma) -> p_frånvarotimmar_anledning_kön
+
+ggplotly(p_frånvarotimmar_anledning_kön, tooltip = "text") %>%
+  config(displayModeBar = F)
+```
+
+
+
+
+
+
+
+
+
+# Anställning utifrån sektor {data-orientation="columns" data-navmenu="Anställning"}
+
+
+# Anställning utifrån näringsgren {data-orientation="columns" data-navmenu="Anställning"}
+
+
+
+
+
+
+
+
+
+
+
+# Lönespridning {data-orientation="columns" data-navmenu="Löner"}
+
+
+
+# Löner utifrån ålder {data-orientation="columns" data-navmenu="Löner"}
+
+
+
+# Löner utifrån utbildningsnivå {data-orientation="columns" data-navmenu="Löner"}
+
 
 
