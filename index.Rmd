@@ -65,6 +65,13 @@ frånvarotimmar_arbete <- frånvarotimmar_arbete %>%
   pivot_longer(!c(Kön, Mätvariabel), names_to = "År" , values_to = "Timmar") %>% 
   mutate(Timmar = Timmar * 1000)
 
+ # Anställning utifrån sektor
+anställning_sektor <- read_excel("data/anställning_sektor.xlsx")
+
+ # Anställning utifrån näringsgren
+anställning_näringsgren <- read_excel("data/anställning_näringsgren.xlsx")
+anställning_näringsgren$`Antal anställda` <- as.numeric(anställning_näringsgren$`Antal anställda`)
+
 
 # Tema
 ss_theme <- theme(plot.background = element_rect(fill = "#EB6864") ,
@@ -257,13 +264,178 @@ ggplotly(p_frånvarotimmar_anledning_kön, tooltip = "text") %>%
 
 
 # Anställning utifrån sektor {data-orientation="columns" data-navmenu="Anställning"}
+## {.tabset .tabset-pills}
+### Fördelning utifrån sektor
+
+```{r}
+anställning_sektor %>% 
+  filter(Kön == "Totalt" ,
+         Sektor != "Samtliga") %>% 
+  mutate(Andel = `Antal anställda` / sum(`Antal anställda`)) %>% 
+  ggplot(aes(x = Sektor , y = `Antal anställda` , fill = Sektor,
+             text = paste(Sektor , "\nAntal: ", comma(`Antal anställda`), 
+                          "\nAndel: ", round(Andel , 2) * 100 , "%"))) +
+  geom_col() +
+  ss_theme +
+  scale_fill_manual(values = c("Näringslivet" = "#ffb1b1",
+                               "Staten" = "#64b6ee" ,
+                               "Region" = "#94c58c",
+                               "Kommun" = "#ffff9a")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), labels = scales::comma) -> p_anställning_sektor
+
+ggplotly(p_anställning_sektor, tooltip = "text") %>%
+  config(displayModeBar = F)
+```
+
+## {.tabset .tabset-pills}
+### Fördelning utifrån sektor och kön
+
+```{r}
+anställning_sektor %>% 
+  filter(Kön != "Totalt" ,
+         Sektor != "Samtliga") %>% 
+  mutate(Andel = `Antal anställda` / sum(`Antal anställda`)) %>% 
+  ggplot(aes(x = Sektor , y = `Antal anställda` , fill = Kön,
+             text = paste(Sektor , "\nAntal: ", comma(`Antal anställda`), 
+                          "\nAndel: ", round(Andel, 2) * 100 , "%"))) +
+  geom_col(position = "dodge") +
+  ss_theme +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), labels = scales::comma) -> p_anställning_sektor_kön
+
+ggplotly(p_anställning_sektor_kön, tooltip = "text") %>%
+  config(displayModeBar = F)
+```
+
 
 
 # Anställning utifrån näringsgren {data-orientation="columns" data-navmenu="Anställning"}
+## {.tabset .tabset-pills}
+### Fördelning, totalt
+```{r}
+anställning_näringsgren %>% 
+  filter(Kön == "Totalt" ,
+         Sektor != "Samtliga") %>% 
+  drop_na(`Antal anställda`) %>% 
+  mutate(Andel = `Antal anställda` / sum(`Antal anställda`)) %>% 
+  ggplot(aes(x = Sektor , y = `Antal anställda` , fill = Sektor,
+             text = paste(Sektor , "\nAntal: ", comma(`Antal anställda`), 
+                          "\nAndel: ", round(Andel , 2) * 100 , "%"))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  theme(axis.text.x = element_text(angle = 70, hjust = 1 , vjust = 1)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), labels = scales::comma) -> p_anställning_sektor
+
+ggplotly(p_anställning_sektor, tooltip = "text") %>%
+  config(displayModeBar = F)
+
+```
+
+### Fördelning, kvinnor
+```{r}
+anställning_näringsgren %>% 
+  filter(Kön == "Kvinnor" ,
+         Sektor != "Samtliga") %>% 
+  drop_na(`Antal anställda`) %>% 
+  mutate(Andel = `Antal anställda` / sum(`Antal anställda`)) %>% 
+  ggplot(aes(x = Sektor , y = `Antal anställda` , fill = Sektor,
+             text = paste(Sektor , "\nAntal: ", comma(`Antal anställda`), 
+                          "\nAndel: ", round(Andel , 2) * 100 , "%"))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  theme(axis.text.x = element_text(angle = 70, hjust = 1 , vjust = 1)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), labels = scales::comma) -> p_anställning_sektor_kvinnor
+
+ggplotly(p_anställning_sektor_kvinnor, tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  layout(
+    annotations = list(
+      x = 0,  
+      y = 1,  
+      text = "Könsfördelningsstatistik saknas inom Bygg, El, gas och värme och Vatten, rening och avfall.",
+      showarrow = FALSE,
+      xref = "paper",
+      yref = "paper",
+      xanchor = "left",  
+      yanchor = "top",  
+      font = list(size = 12, color = "black")  
+    )
+  )
+
+```
 
 
+### Fördelning, män
+```{r}
+anställning_näringsgren %>% 
+  filter(Kön == "Män" ,
+         Sektor != "Samtliga") %>% 
+  drop_na(`Antal anställda`) %>% 
+  mutate(Andel = `Antal anställda` / sum(`Antal anställda`)) %>% 
+  ggplot(aes(x = Sektor , y = `Antal anställda` , fill = Sektor,
+             text = paste(Sektor , "\nAntal: ", comma(`Antal anställda`), 
+                          "\nAndel: ", round(Andel , 2) * 100 , "%"))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  theme(axis.text.x = element_text(angle = 70, hjust = 1 , vjust = 1)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6), labels = scales::comma) -> p_anställning_sektor_män
+
+ggplotly(p_anställning_sektor_män, tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  layout(
+    annotations = list(
+      x = 0,  
+      y = 1,  
+      text = "Könsfördelningsstatistik saknas inom Bygg, El, gas och värme och Vatten, rening och avfall.",
+      showarrow = FALSE,
+      xref = "paper",
+      yref = "paper",
+      xanchor = "left",  
+      yanchor = "top",  
+      font = list(size = 12, color = "black")  
+    )
+  )
+```
 
 
+## {.tabset .tabset-pills}
+### Andel kvinnor av totalt antal anställda
+
+```{r}
+anställning_näringsgren %>% 
+  filter(Kön %in% c("Kvinnor" , "Män"),
+         Sektor != "Samtliga") %>% 
+  drop_na(`Antal anställda`) %>% 
+  group_by(Kön , Sektor) %>% 
+  summarize("Antal" = `Antal anställda`) %>% 
+  pivot_wider(id_cols = Sektor, names_from = Kön , values_from = Antal) %>% 
+  mutate(Andelkvinnor = Kvinnor / (Kvinnor + Män)) %>% 
+  ggplot(aes(x = Sektor , y = Andelkvinnor , fill = Sektor,
+             text = paste(Sektor , "\nAndel kvinnor: ", round(Andelkvinnor , 2) * 100 , "%"))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  ylab("Andel kvinnor") +
+  theme(axis.text.x = element_text(angle = 70, hjust = 1 , vjust = 1)) +
+  scale_y_continuous(labels = scales::label_percent() , 
+                     breaks = 0.5 , limits = c(0 , 1)) -> p_anställning_sektor_andelkvinnor
+
+ggplotly(p_anställning_sektor_andelkvinnor, tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  layout(
+    annotations = list(
+      x = 0,  
+      y = 1,  
+      text = "Könsfördelningsstatistik saknas inom Bygg, El, gas och värme och Vatten, rening och avfall.",
+      showarrow = FALSE,
+      xref = "paper",
+      yref = "paper",
+      xanchor = "left",  
+      yanchor = "top",  
+      font = list(size = 12, color = "black")  
+    )
+  )
+```
 
 
 
