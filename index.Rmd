@@ -72,6 +72,18 @@ anställning_sektor <- read_excel("data/anställning_sektor.xlsx")
 anställning_näringsgren <- read_excel("data/anställning_näringsgren.xlsx")
 anställning_näringsgren$`Antal anställda` <- as.numeric(anställning_näringsgren$`Antal anställda`)
 
+ # Löner utifrån utbildningsnivå
+lön_utbildningsnivå <- read_excel("data/lön_utbildningsnivå.xlsx")
+
+ # Löner utifrån ålderskategori
+lön_ålder <- read_excel("data/lön_ålder.xlsx")
+
+ # Lönespridning
+lönespridning <- read_excel("data/lönespridning.xlsx")
+
+
+
+
 
 # Tema
 ss_theme <- theme(plot.background = element_rect(fill = "#EB6864") ,
@@ -440,18 +452,133 @@ ggplotly(p_anställning_sektor_andelkvinnor, tooltip = "text") %>%
 
 
 
+# Löner utifrån sektor {data-orientation="columns" data-navmenu="Löner"}
+##
+### Genomsnittslöner utifrån sektor
+```{r}
+lön_utbildningsnivå %>% 
+  filter(Sektor != "Samtliga" , Kön == "Totalt" , Utbildning == "Alla") %>% 
+  ggplot(aes(x = Sektor , y = Lön,
+             text = paste(Sektor , "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  scale_y_continuous(labels = comma) -> p_lön_sektor
 
+ggplotly(p_lön_sektor, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
 
+```
 
-# Lönespridning {data-orientation="columns" data-navmenu="Löner"}
+##
+### Genomsnittslöner utifrån sektor och kön
+```{r}
+lön_utbildningsnivå %>% 
+  filter(Sektor != "Samtliga" , Kön != "Totalt" , Utbildning == "Alla") %>% 
+  ggplot(aes(x = Sektor , y = Lön, fill = Kön,
+             text = paste(Kön, "\nSektor: ", Sektor , "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(position = "dodge") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(labels = comma) -> p_lön_sektor_kön
 
+ggplotly(p_lön_sektor_kön, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
 
-
-# Löner utifrån ålder {data-orientation="columns" data-navmenu="Löner"}
-
+```
 
 
 # Löner utifrån utbildningsnivå {data-orientation="columns" data-navmenu="Löner"}
+##
+### Genomsnittslöner utifrån utbildningsnivå
+```{r}
+levels = c("Förgymnasial -9 år" , "Förgymnasial 9+ år" , "Gymnasial -3 år", "Gymnasial 3 år", 
+           "Eftergymnasial -3 år", "Eftergymnasial 3+ år", "Forskarutbildning")
+
+lön_utbildningsnivå %>% 
+  filter(Sektor == "Samtliga" , Kön == "Totalt" , Utbildning != "Alla") %>% 
+  ggplot(aes(x = factor(Utbildning, levels = levels) , y = Lön,
+             text = paste(Utbildning , "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  xlab("Utbildningsnivå") +
+  theme(axis.text.x = element_text(angle = 70, hjust = 1 , vjust = 1)) +
+  scale_y_continuous(labels = comma) -> p_lön_utbildning
+
+ggplotly(p_lön_utbildning, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
+
+##
+### Genomsnittslöner utifrån utbildningsnivå och kön
+```{r}
+lön_utbildningsnivå %>% 
+  filter(Sektor == "Samtliga" , Kön != "Totalt" , Utbildning != "Alla") %>% 
+  ggplot(aes(x = factor(Utbildning, levels = levels) , y = Lön, fill = Kön,
+             text = paste(Kön, "\nUtbildningsnivå: ", Utbildning , "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(position = "dodge") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  xlab("Utbildningsnivå") +
+  theme(axis.text.x = element_text(angle = 70, hjust = 1 , vjust = 1)) +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(labels = comma) -> p_lön_utbildning_kön
+
+ggplotly(p_lön_utbildning_kön, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
+
+
+# Löner utifrån ålder {data-orientation="columns" data-navmenu="Löner"}
+##
+### Genomsnittslöner utifrån ålder
+```{r}
+levels = c("18-24" , "25-34" , "35-44" , "45-54" , "55-64" , "65-68")
+
+lön_ålder %>% 
+  filter(Sektor == "Samtliga" , Kön == "Båda" , Ålder != "65-68") %>% 
+  ggplot(aes(x = factor(Ålder, levels = levels) , y = Lön,
+             text = paste(Ålder, "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(fill = "#ffb1b1") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  xlab("Ålderskategori") +
+  scale_y_continuous(labels = comma) -> p_lön_ålder
+
+ggplotly(p_lön_ålder, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
+
+##
+### Genomsnittslöner utifrån ålder och kön
+```{r}
+lön_ålder %>% 
+  filter(Sektor == "Samtliga" , Kön != "Båda" , Ålder != "65-68") %>% 
+  ggplot(aes(x = factor(Ålder , levels = levels), y = Lön, fill = Kön,
+             text = paste(Kön, "\nÅlderskategori: ", Ålder , "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(position = "dodge") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  xlab("Ålderskategori") +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(labels = comma) -> p_lön_ålder_kön
+
+ggplotly(p_lön_ålder_kön, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
+
+# Lönespridning {data-orientation="columns" data-navmenu="Löner"}
+##
+### Genomsnittslöner utifrån ---
+```{r}
 
 
 
+
+
+```
