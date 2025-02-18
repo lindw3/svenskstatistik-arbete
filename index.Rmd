@@ -452,6 +452,12 @@ ggplotly(p_anställning_sektor_andelkvinnor, tooltip = "text") %>%
 
 
 
+
+
+
+
+
+
 # Löner utifrån sektor {data-orientation="columns" data-navmenu="Löner"}
 ##
 ### Genomsnittslöner utifrån sektor
@@ -488,6 +494,8 @@ ggplotly(p_lön_sektor_kön, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 
 ```
+
+
 
 
 # Löner utifrån utbildningsnivå {data-orientation="columns" data-navmenu="Löner"}
@@ -533,6 +541,9 @@ ggplotly(p_lön_utbildning_kön, tooltip = "text") %>%
 ```
 
 
+
+
+
 # Löner utifrån ålder {data-orientation="columns" data-navmenu="Löner"}
 ##
 ### Genomsnittslöner utifrån ålder
@@ -572,13 +583,57 @@ ggplotly(p_lön_ålder_kön, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
 
+
+
+
+
 # Lönespridning {data-orientation="columns" data-navmenu="Löner"}
-##
-### Genomsnittslöner utifrån ---
+## {.tabset .tabset-pills}
+### Lönespridning utifrån kön
 ```{r}
+levels = c("10 percentilen" , "25 percentilen" , "Median" , "75 percentilen" , "90 percentilen")
 
+lönespridning %>% 
+  filter(Sektor == "Alla" , Kön != "Totalt") %>% 
+  select(Kön, Median, `10 percentilen` , `25 percentilen` , `75 percentilen` , `90 percentilen`) %>% 
+  pivot_longer(!Kön, names_to = "Kategori" , values_to = "Lön") %>% 
+  ggplot(aes(x = factor(Kategori , levels = levels), y = Lön, fill = Kön,
+             text = paste(Kön, "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(position = "dodge") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  xlab("Lönespann") +
+  scale_fill_manual(values = c("Kvinnor" = "#ffb1b1",
+                               "Män" = "#64b6ee")) +
+  scale_y_continuous(labels = comma) -> p_lönespridning_kön
 
+ggplotly(p_lönespridning_kön, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
+```
 
+## {.tabset .tabset-pills}
+### Lönespridning utifrån sektor
+```{r}
+levels = c("10 percentilen" , "25 percentilen" , "Median" , "75 percentilen" , "90 percentilen")
 
+lönespridning %>% 
+  filter(Sektor != "Alla" , Kön == "Totalt") %>% 
+  select(Sektor, Median, `10 percentilen` , `25 percentilen` , `75 percentilen` , `90 percentilen`) %>% 
+  pivot_longer(!Sektor, names_to = "Kategori" , values_to = "Lön") %>% 
+  ggplot(aes(x = Sektor, y = Lön, fill = factor(Kategori, levels = levels),
+             text = paste(Kategori, "\nGenomsnittslön: ", comma(Lön)))) +
+  geom_col(position = "dodge") +
+  ss_theme +
+  ylab("Genomsnittslön") +
+  xlab("Sektor") +
+  labs(fill = "Kategori") +
+  scale_fill_manual(values = c("10 percentilen" = "#ffb1b1",
+                               "25 percentilen" = "#64b6ee" ,
+                               "Median" = "#94c58c",
+                               "75 percentilen" = "#ffff9a" ,
+                               "90 percentilen" = "#ffcff1")) +
+  scale_y_continuous(labels = comma) -> p_lönespridning_sektor
 
+ggplotly(p_lönespridning_sektor, tooltip = "text") %>%
+  config(displayModeBar = FALSE)
 ```
