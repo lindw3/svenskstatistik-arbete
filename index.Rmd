@@ -142,7 +142,7 @@ Använd navigationspanelen högst upp för att se svaren utifrån olika områden
 </div>
 
 # Sysselsättning {data-orientation="columns" data-navmenu="Arbete"}
-## 
+## {.tabset .tabset-pills}
 ### Antal sysselsatta utifrån kön
 
 ```{r}
@@ -164,7 +164,7 @@ ggplotly(p_sysselsättning_kön, tooltip = "text") %>%
   config(displayModeBar = F)
 ```
 
-##
+## {.tabset .tabset-pills}
 ### Antal sysselsatta i arbete utifrån ålderskategori och kön
 ```{r}
 sysselsättning %>% 
@@ -186,7 +186,7 @@ ggplotly(p_arbete_kön_ålder, tooltip = "text") %>%
 ```
 
 # Arbetstid {data-orientation="columns" data-navmenu="Arbete"}
-##
+## {.tabset .tabset-pills}
 ### Arbetstid/vecka utifrån kön och år
 ```{r}
 arbetstid %>% 
@@ -205,7 +205,7 @@ ggplotly(p_arbetstid_kön, tooltip = "text") %>%
   config(displayModeBar = F)
 ```
 
-##
+## {.tabset .tabset-pills}
 ### Arbetstid/vecka utifrån anställning och år
 ```{r}
 arbetstid %>% 
@@ -227,7 +227,7 @@ ggplotly(p_arbetstid_anställning, tooltip = "text") %>%
 
 
 # Arbetsfrånvaro {data-orientation="columns" data-navmenu="Arbete"}
-##
+## {.tabset .tabset-pills}
 ### Frånvarotimmar från arbete utifrån kön och år
 ```{r}
 frånvarotimmar_arbete %>% 
@@ -247,7 +247,7 @@ ggplotly(p_arbetsfrånvaro_kön, tooltip = "text") %>%
 
 ```
 
-##
+## {.tabset .tabset-pills}
 ### Frånvarotimmar från arbete utifrån kön och anledning
 ```{r}
 frånvarotimmar_arbete %>% 
@@ -459,7 +459,7 @@ ggplotly(p_anställning_sektor_andelkvinnor, tooltip = "text") %>%
 
 
 # Löner utifrån sektor {data-orientation="columns" data-navmenu="Löner"}
-##
+## {.tabset .tabset-pills}
 ### Genomsnittslöner utifrån sektor
 ```{r}
 lön_utbildningsnivå %>% 
@@ -476,7 +476,7 @@ ggplotly(p_lön_sektor, tooltip = "text") %>%
 
 ```
 
-##
+## {.tabset .tabset-pills}
 ### Genomsnittslöner utifrån sektor och kön
 ```{r}
 lön_utbildningsnivå %>% 
@@ -499,7 +499,7 @@ ggplotly(p_lön_sektor_kön, tooltip = "text") %>%
 
 
 # Löner utifrån utbildningsnivå {data-orientation="columns" data-navmenu="Löner"}
-##
+## {.tabset .tabset-pills}
 ### Genomsnittslöner utifrån utbildningsnivå
 ```{r}
 levels = c("Förgymnasial -9 år" , "Förgymnasial 9+ år" , "Gymnasial -3 år", "Gymnasial 3 år", 
@@ -520,7 +520,7 @@ ggplotly(p_lön_utbildning, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
 
-##
+## {.tabset .tabset-pills}
 ### Genomsnittslöner utifrån utbildningsnivå och kön
 ```{r}
 lön_utbildningsnivå %>% 
@@ -545,7 +545,7 @@ ggplotly(p_lön_utbildning_kön, tooltip = "text") %>%
 
 
 # Löner utifrån ålder {data-orientation="columns" data-navmenu="Löner"}
-##
+## {.tabset .tabset-pills}
 ### Genomsnittslöner utifrån ålder
 ```{r}
 levels = c("18-24" , "25-34" , "35-44" , "45-54" , "55-64" , "65-68")
@@ -564,7 +564,7 @@ ggplotly(p_lön_ålder, tooltip = "text") %>%
   config(displayModeBar = FALSE)
 ```
 
-##
+## {.tabset .tabset-pills}
 ### Genomsnittslöner utifrån ålder och kön
 ```{r}
 lön_ålder %>% 
